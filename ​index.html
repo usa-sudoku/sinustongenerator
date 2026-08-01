@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zwei-Kanal Sinuston Generator</title>
+    <title>Sinuston Generator (Unabhängige Buttons)</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -31,47 +31,39 @@
             padding: 2rem;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
         }
 
         h1 {
             text-align: center;
             margin-top: 0;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: var(--text-color);
+            margin-bottom: 1.5rem;
         }
 
-        .tone-group {
+        .tone-box {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
             padding: 1.25rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             border-left: 4px solid var(--accent-1);
         }
 
-        .tone-group.tone-2 {
+        .tone-box.tone-2 {
             border-left-color: var(--accent-2);
-        }
-
-        .tone-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
         }
 
         .tone-title {
             font-weight: bold;
             font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: block;
         }
 
-        .control-row {
+        .input-group {
             margin-bottom: 1rem;
-        }
-
-        .control-row:last-child {
-            margin-bottom: 0;
         }
 
         label {
@@ -81,39 +73,19 @@
             margin-bottom: 0.3rem;
         }
 
-        .input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         input[type="number"] {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid #334155;
             color: var(--text-color);
-            padding: 8px 12px;
+            padding: 10px;
             border-radius: 6px;
-            width: 90px;
-            font-size: 1rem;
-        }
-
-        input[type="range"] {
-            flex-grow: 1;
-            accent-color: var(--accent-1);
-        }
-
-        .tone-2 input[type="range"] {
-            accent-color: var(--accent-2);
-        }
-
-        .master-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 1.5rem;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1.1rem;
         }
 
         button {
-            flex: 1;
+            width: 100%;
             padding: 12px;
             border: none;
             border-radius: 8px;
@@ -123,178 +95,162 @@
             transition: all 0.2s ease;
         }
 
-        .btn-play {
-            background-color: #22c55e;
+        .btn-toggle {
+            background-color: #334155;
+            color: var(--text-color);
+        }
+
+        .btn-toggle.active {
+            background-color: #ef4444; /* Rot zum Stoppen */
             color: white;
         }
 
-        .btn-play:hover {
-            background-color: #16a34a;
-        }
-
-        .btn-stop {
-            background-color: #ef4444;
+        .tone-box:first-of-type .btn-toggle:not(.active) {
+            background-color: #0284c7; /* Blau für Ton 1 */
             color: white;
         }
 
-        .btn-stop:hover {
-            background-color: #dc2626;
+        .tone-box:last-of-type .btn-toggle:not(.active) {
+            background-color: #9333ea; /* Lila für Ton 2 */
+            color: white;
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .btn-toggle:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Zwei-Kanal Sinuston Generator</h1>
+    <h1>Sinuston Generator</h1>
 
     <!-- Ton 1 -->
-    <div class="tone-group tone-1">
-        <div class="tone-header">
-            <span class="tone-title">Ton 1</span>
+    <div class="tone-box tone-1">
+        <span class="tone-title">Ton 1</span>
+        <div class="input-group">
+            <label for="freq1">Frequenz (Hz):</label>
+            <input type="number" id="freq1" value="440" min="1" max="20000" step="1">
         </div>
-        <div class="control-row">
-            <label for="freq1">Frequenz (Hz)</label>
-            <div class="input-wrapper">
-                <input type="number" id="freq1" value="440" min="20" max="20000" step="1">
-                <input type="range" id="slider1" value="440" min="20" max="2000" step="1">
-            </div>
-        </div>
-        <div class="control-row">
-            <label for="vol1">Lautstärke</label>
-            <input type="range" id="vol1" value="0.5" min="0" max="1" step="0.01">
-        </div>
+        <button id="btn1" class="btn-toggle">Ton 1 starten</button>
     </div>
 
     <!-- Ton 2 -->
-    <div class="tone-group tone-2">
-        <div class="tone-header">
-            <span class="tone-title">Ton 2</span>
+    <div class="tone-box tone-2">
+        <span class="tone-title">Ton 2</span>
+        <div class="input-group">
+            <label for="freq2">Frequenz (Hz):</label>
+            <input type="number" id="freq2" value="880" min="1" max="20000" step="1">
         </div>
-        <div class="control-row">
-            <label for="freq2">Frequenz (Hz)</label>
-            <div class="input-wrapper">
-                <input type="number" id="freq2" value="444" min="20" max="20000" step="1">
-                <input type="range" id="slider2" value="444" min="20" max="2000" step="1">
-            </div>
-        </div>
-        <div class="control-row">
-            <label for="vol2">Lautstärke</label>
-            <input type="range" id="vol2" value="0.5" min="0" max="1" step="0.01">
-        </div>
-    </div>
-
-    <!-- Buttons -->
-    <div class="master-controls">
-        <button id="playBtn" class="btn-play">▶ Starten</button>
-        <button id="stopBtn" class="btn-stop" disabled>⏹ Stoppen</button>
+        <button id="btn2" class="btn-toggle">Ton 2 starten</button>
     </div>
 </div>
 
 <script>
     let audioCtx = null;
-    let osc1 = null, osc2 = null;
-    let gain1 = null, gain2 = null;
-    let isPlaying = false;
 
-    const playBtn = document.getElementById('playBtn');
-    const stopBtn = document.getElementById('stopBtn');
+    // Zustände und Knoten für Ton 1
+    let osc1 = null, gain1 = null;
+    let isPlaying1 = false;
 
-    // DOM-Elemente Ton 1
-    const freq1Input = document.getElementById('freq1');
-    const slider1Input = document.getElementById('slider1');
-    const vol1Input = document.getElementById('vol1');
+    // Zustände und Knoten für Ton 2
+    let osc2 = null, gain2 = null;
+    let isPlaying2 = false;
 
-    // DOM-Elemente Ton 2
-    const freq2Input = document.getElementById('freq2');
-    const slider2Input = document.getElementById('slider2');
-    const vol2Input = document.getElementById('vol2');
-
-    // Synchronisation zwischen Textfeld und Schieberegler
-    function syncInputs(numInput, sliderInput, onChange) {
-        numInput.addEventListener('input', () => {
-            sliderInput.value = numInput.value;
-            onChange(numInput.value);
-        });
-        sliderInput.addEventListener('input', () => {
-            numInput.value = sliderInput.value;
-            onChange(sliderInput.value);
-        });
-    }
-
-    syncInputs(freq1Input, slider1Input, (val) => {
-        if (osc1) osc1.frequency.setValueAtTime(val, audioCtx.currentTime);
-    });
-
-    syncInputs(freq2Input, slider2Input, (val) => {
-        if (osc2) osc2.frequency.setValueAtTime(val, audioCtx.currentTime);
-    });
-
-    vol1Input.addEventListener('input', (e) => {
-        if (gain1) gain1.gain.setValueAtTime(e.target.value, audioCtx.currentTime);
-    });
-
-    vol2Input.addEventListener('input', (e) => {
-        if (gain2) gain2.gain.setValueAtTime(e.target.value, audioCtx.currentTime);
-    });
-
-    function startAudio() {
-        if (isPlaying) return;
-
-        // AudioContext initialisieren (falls noch nicht geschehen)
+    function getAudioContext() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-
-        // Oszillator & Gain-Knoten für Ton 1
-        osc1 = audioCtx.createOscillator();
-        gain1 = audioCtx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(parseFloat(freq1Input.value), audioCtx.currentTime);
-        gain1.gain.setValueAtTime(parseFloat(vol1Input.value), audioCtx.currentTime);
-
-        osc1.connect(gain1);
-        gain1.connect(audioCtx.destination);
-
-        // Oszillator & Gain-Knoten für Ton 2
-        osc2 = audioCtx.createOscillator();
-        gain2 = audioCtx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(parseFloat(freq2Input.value), audioCtx.currentTime);
-        gain2.gain.setValueAtTime(parseFloat(vol2Input.value), audioCtx.currentTime);
-
-        osc2.connect(gain2);
-        gain2.connect(audioCtx.destination);
-
-        // Tone starten
-        osc1.start();
-        osc2.start();
-
-        isPlaying = true;
-        playBtn.disabled = true;
-        stopBtn.disabled = false;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
     }
 
-    function stopAudio() {
-        if (!isPlaying) return;
+    // --- Steuerung Ton 1 ---
+    const btn1 = document.getElementById('btn1');
+    const freq1Input = document.getElementById('freq1');
 
-        osc1.stop();
-        osc2.stop();
+    btn1.addEventListener('click', () => {
+        const ctx = getAudioContext();
+        const freq = parseFloat(freq1Input.value) || 440;
 
-        osc1.disconnect();
-        osc2.disconnect();
+        if (!isPlaying1) {
+            // Starten
+            osc1 = ctx.createOscillator();
+            gain1 = ctx.createGain();
 
-        isPlaying = false;
-        playBtn.disabled = false;
-        stopBtn.disabled = true;
-    }
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain1.gain.setValueAtTime(0.5, ctx.currentTime); // Feste angenehme Lautstärke
 
-    playBtn.addEventListener('click', startAudio);
-    stopBtn.addEventListener('click', stopAudio);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start();
+
+            isPlaying1 = true;
+            btn1.textContent = 'Ton 1 stoppen';
+            btn1.classList.add('active');
+        } else {
+            // Stoppen
+            osc1.stop();
+            osc1.disconnect();
+            isPlaying1 = false;
+            btn1.textContent = 'Ton 1 starten';
+            btn1.classList.remove('active');
+        }
+    });
+
+    // Frequenz live anpassen, falls Ton läuft
+    freq1Input.addEventListener('input', () => {
+        if (isPlaying1 && osc1) {
+            const freq = parseFloat(freq1Input.value) || 440;
+            osc1.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        }
+    });
+
+
+    // --- Steuerung Ton 2 ---
+    const btn2 = document.getElementById('btn2');
+    const freq2Input = document.getElementById('freq2');
+
+    btn2.addEventListener('click', () => {
+        const ctx = getAudioContext();
+        const freq = parseFloat(freq2Input.value) || 880;
+
+        if (!isPlaying2) {
+            // Starten
+            osc2 = ctx.createOscillator();
+            gain2 = ctx.createGain();
+
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain2.gain.setValueAtTime(0.5, ctx.currentTime);
+
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start();
+
+            isPlaying2 = true;
+            btn2.textContent = 'Ton 2 stoppen';
+            btn2.classList.add('active');
+        } else {
+            // Stoppen
+            osc2.stop();
+            osc2.disconnect();
+            isPlaying2 = false;
+            btn2.textContent = 'Ton 2 starten';
+            btn2.classList.remove('active');
+        }
+    });
+
+    // Frequenz live anpassen, falls Ton läuft
+    freq2Input.addEventListener('input', () => {
+        if (isPlaying2 && osc2) {
+            const freq = parseFloat(freq2Input.value) || 880;
+            osc2.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        }
+    });
 </script>
 
 </body>
