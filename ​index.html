@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zwei-Kanal Sinuston Generator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-1: #38bdf8;
+            --accent-2: #a855f7;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .tone-group {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent-1);
+        }
+
+        .tone-group.tone-2 {
+            border-left-color: var(--accent-2);
+        }
+
+        .tone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tone-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .control-row {
+            margin-bottom: 1rem;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="number"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            width: 90px;
+            font-size: 1rem;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--accent-1);
+        }
+
+        .tone-2 input[type="range"] {
+            accent-color: var(--accent-2);
+        }
+
+        .master-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-play {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .btn-play:hover {
+            background-color: #16a34a;
+        }
+
+        .btn-stop {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background-color: #dc2626;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Zwei-Kanal Sinuston Generator</h1>
+
+    <!-- Ton 1 -->
+    <div class="tone-group tone-1">
+        <div class="tone-header">
+            <span class="tone-title">Ton 1</span>
+        </div>
+        <div class="control-row">
+            <label for="freq1">Frequenz (Hz)</label>
+            <div class="input-wrapper">
+                <input type="number" id="freq1" value="440" min="20" max="20000" step="1">
+                <input type="range" id="slider1" value="440" min="20" max="2000" step="1">
+            </div>
+        </div>
+        <div class="control-row">
+            <label for="vol1">Lautstärke</label>
+            <input type="range" id="vol1" value="0.5" min="0" max="1" step="0.01">
+        </div>
+    </div>
+
+    <!-- Ton 2 -->
+    <div class="tone-group tone-2">
+        <div class="tone-header">
+            <span class="tone-title">Ton 2</span>
+        </div>
+        <div class="control-row">
+            <label for="freq2">Frequenz (Hz)</label>
+            <div class="input-wrapper">
+                <input type="number" id="freq2" value="444" min="20" max="20000" step="1">
+                <input type="range" id="slider2" value="444" min="20" max="2000" step="1">
+            </div>
+        </div>
+        <div class="control-row">
+            <label for="vol2">Lautstärke</label>
+            <input type="range" id="vol2" value="0.5" min="0" max="1" step="0.01">
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="master-controls">
+        <button id="playBtn" class="btn-play">▶ Starten</button>
+        <button id="stopBtn" class="btn-stop" disabled>⏹ Stoppen</button>
+    </div>
+</div>
+
+<script>
+    let audioCtx = null;
+    let osc1 = null, osc2 = null;
+    let gain1 = null, gain2 = null;
+    let isPlaying = false;
+
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+
+    // DOM-Elemente Ton 1
+    const freq1Input = document.getElementById('freq1');
+    const slider1Input = document.getElementById('slider1');
+    const vol1Input = document.getElementById('vol1');
+
+    // DOM-Elemente Ton 2
+    const freq2Input = document.getElementById('freq2');
+    const slider2Input = document.getElementById('slider2');
+    const vol2Input = document.getElementById('vol2');
+
+    // Synchronisation zwischen Textfeld und Schieberegler
+    function syncInputs(numInput, sliderInput, onChange) {
+        numInput.addEventListener('input', () => {
+            sliderInput.value = numInput.value;
+            onChange(numInput.value);
+        });
+        sliderInput.addEventListener('input', () => {
+            numInput.value = sliderInput.value;
+            onChange(sliderInput.value);
+        });
+    }
+
+    syncInputs(freq1Input, slider1Input, (val) => {
+        if (osc1) osc1.frequency.setValueAtTime(val, audioCtx.currentTime);
+    });
+
+    syncInputs(freq2Input, slider2Input, (val) => {
+        if (osc2) osc2.frequency.setValueAtTime(val, audioCtx.currentTime);
+    });
+
+    vol1Input.addEventListener('input', (e) => {
+        if (gain1) gain1.gain.setValueAtTime(e.target.value, audioCtx.currentTime);
+    });
+
+    vol2Input.addEventListener('input', (e) => {
+        if (gain2) gain2.gain.setValueAtTime(e.target.value, audioCtx.currentTime);
+    });
+
+    function startAudio() {
+        if (isPlaying) return;
+
+        // AudioContext initialisieren (falls noch nicht geschehen)
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        // Oszillator & Gain-Knoten für Ton 1
+        osc1 = audioCtx.createOscillator();
+        gain1 = audioCtx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(parseFloat(freq1Input.value), audioCtx.currentTime);
+        gain1.gain.setValueAtTime(parseFloat(vol1Input.value), audioCtx.currentTime);
+
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+
+        // Oszillator & Gain-Knoten für Ton 2
+        osc2 = audioCtx.createOscillator();
+        gain2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(parseFloat(freq2Input.value), audioCtx.currentTime);
+        gain2.gain.setValueAtTime(parseFloat(vol2Input.value), audioCtx.currentTime);
+
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+
+        // Tone starten
+        osc1.start();
+        osc2.start();
+
+        isPlaying = true;
+        playBtn.disabled = true;
+        stopBtn.disabled = false;
+    }
+
+    function stopAudio() {
+        if (!isPlaying) return;
+
+        osc1.stop();
+        osc2.stop();
+
+        osc1.disconnect();
+        osc2.disconnect();
+
+        isPlaying = false;
+        playBtn.disabled = false;
+        stopBtn.disabled = true;
+    }
+
+    playBtn.addEventListener('click', startAudio);
+    stopBtn.addEventListener('click', stopAudio);
+</script>
+
+</body>
+</html>
